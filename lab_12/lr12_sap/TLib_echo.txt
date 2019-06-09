@@ -1,0 +1,71 @@
+TempMacro MACRO type, tname, List1, List2
+A = 0
+
+.LALL
+%ECHO tname&:
+	%ECHO 
+	%ECHO PUSH EBP
+	%ECHO MOV EBP, ESP
+	%ECHO 
+	.XALL
+
+	FOR param, <List1>
+		.LALL
+		%ECHO @catstr(param) EQU @catstr([EBP + %(8 + A*4)])
+		.XALL
+		A  = A + 1
+	ENDM
+
+	%ECHO 
+	IFB <LIST2>
+		%ECHO PUSH EBX
+		%ECHO PUSH ESI
+		%ECHO PUSH EDI
+	ELSE
+		B = 1
+		FOR param, <List2>
+		.LALL
+		%ECHO PUSH @catstr(param)
+		.XALL
+		@catstr(XX,%B) textequ <param>
+		B = B + 1
+		ENDM
+	ENDIF
+
+	%ECHO 
+	%ECHO maincode:
+	%ECHO
+
+	IFIDN <type>,<INT>
+		.LALL
+		%ECHO MOV EAX,
+		.XALL
+	ENDIF
+	IFIDN <type>,<INT*>
+		.LALL
+		%ECHO MOV EAX, OFFSET X
+		.XALL
+	ENDIF
+
+	%ECHO 
+	IFB <LIST2>
+		.LALL
+		%ECHO POP EDI
+		%ECHO POP ESI
+		%ECHO POP EBX
+		.XALL
+	ELSE
+		B = B - 1
+		WHILE B GT 0
+			.LALL
+			%ECHO POP @catstr(XX,%B)
+			.XALL
+			B = B - 1
+		ENDM
+	ENDIF
+	
+	%ECHO 
+	%ECHO MOV ESP, EBP
+	%ECHO POP EBP
+	%ECHO RET
+ENDM

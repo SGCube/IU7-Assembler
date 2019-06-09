@@ -1,0 +1,46 @@
+INCLUDE StackLib.txt
+
+TempMacro MACRO type, tname, List1, List2
+
+A = 0
+
+tname&:
+	PUSH EBP
+	MOV EBP, ESP
+	FOR param, <List1>
+		.LALL
+		param textequ @catstr([EBP + %(8 + A*4)])
+		.XALL
+		A  = A + 1
+	ENDM
+	IFB <List2>
+		PUSHR <EBX,ESI,EDI>
+	ELSE
+		PUSHR <List2>
+	ENDIF
+
+	.LALL
+	; Enter code
+	.XALL
+
+	IFIDN <type>,<INT>
+		.LALL
+		; MOV EAX, 
+		.XALL
+	ENDIF
+	IFIDN <type>,<INT*>
+		.LALL
+		; MOV EAX, OFFSET X 
+		.XALL
+	ENDIF
+
+	IFB <List2>
+		POPR <EBX,ESI,EDI>
+	ELSE
+		POPR <List2>
+	ENDIF
+		
+	MOV ESP, EBP
+	POP EBP
+	RET
+ENDM
