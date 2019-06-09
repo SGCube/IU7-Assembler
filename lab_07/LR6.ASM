@@ -1,0 +1,136 @@
+﻿
+EXTRN M2:NEAR,M3:NEAR,M4:NEAR,M5:NEAR,M6:NEAR,M7:NEAR
+
+SSEG SEGMENT PARA STACK 'STACK'
+	DB 100 DUP(?)
+SSEG ENDS
+
+DSEG SEGMENT PARA PUBLIC 'DATA'
+	PROCS	DW	M0, M1, M2, M3, M4, M5, M6, M7, M8
+	X	DW	0
+	R	DW	0	
+	XSTR	DB 	8, 9 DUP(0)
+	MENU 	DB 	'ACTION TYPE CHOICE:',13,10
+	     	DB 	'0. Show menu',13,10
+			DB	'1. Enter integer to X',13,10
+			DB	'2. Print X as binary integer without sign',13,10
+			DB	'3. Print X as binary integer with sign',13,10
+			DB	'4. Print X as decimal integer without sign',13,10
+			DB	'5. Print X as decimal integer with sign',13,10
+			DB	'6. Print X as heximal integer without sign',13,10
+			DB	'7. Print X as heximal integer with sign',13,10
+			DB	'8.	Exit',13,10,'$'
+	MSG		DB	'CHOOSE ACTION TYPE 0..7: ', '$'
+DSEG ENDS
+
+CSEG SEGMENT PARA PUBLIC 'CODE'
+	ASSUME CS:CSEG, DS:DSEG, SS:SSEG
+
+M0 PROC
+	MOV AH, 9
+    	MOV DX, OFFSET MENU
+    	INT 21H
+	RET
+M0 ENDP
+
+M1 PROC
+M1INPUT:
+	PUSH BX
+	MOV DX, OFFSET XSTR
+	MOV AH, 0Ah
+	INT 21h
+	
+	MOV DI, OFFSET XSTR + 1
+	MOV AL, [DI]
+	MOV AH, 0
+	INC DI
+	MOV SI, DI
+	ADD DI, AX
+	MOV BH, 10
+	MOV DX, 0
+	
+M1MINUS:	
+	MOV AL, [SI]
+	CMP AL, '-'
+	JNZ M1TODW
+	INC SI
+	MOV BL, 1
+	
+M1TODW:
+	MOV AL, [SI]
+	SUB AL, '0'
+	PUSH AX
+	
+	MOV AX, DX
+	MUL BH
+	MOV DX, AX
+	POP AX
+	ADD DX, AX
+	
+	INC SI
+	CMP SI, DI
+	JNZ M1TODW
+	
+M1DONE:
+	TEST BL, BL
+	JZ M1EXIT
+	NEG DX
+	
+M1EXIT:
+	MOV X, DX
+	POP BX
+	RET
+M1 ENDP
+
+AMSG PROC
+	MOV AH, 9
+    	MOV DX, OFFSET MSG
+    	INT 21H
+	RET
+AMSG ENDP
+	
+NLINE PROC
+	MOV AH, 2
+	MOV DX, 13
+	INT 21H
+	MOV DX, 10
+	INT 21H
+	RET
+NLINE ENDP
+
+MAIN PROC
+START:
+	MOV AX, DSEG
+	MOV DS, AX
+	MOV BX, OFFSET PROCS
+	CALL M0
+
+ACTION:
+	CALL NLINE
+	CALL AMSG
+	MOV AH, 1
+	INT 21h
+	
+	MOV AH, 0
+	SUB AL, '0'
+	MOV R, AX
+	CALL NLINE
+
+OUTPUT:
+	MOV DI, R
+	CMP DI, 8
+	JZ M8
+	CMP DI, 1
+	JZ FUNC
+	PUSH X
+FUNC:
+	SHL DI, 1
+	CALL WORD PTR [BX + DI]
+	JMP ACTION
+
+M8:	MOV AH, 4Ch
+	INT 21h
+MAIN ENDP
+
+CSEG ENDS
+	END MAIN
