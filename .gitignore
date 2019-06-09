@@ -1,0 +1,18 @@
+# Compiled Object files
+*.o
+*.obj
+*.crf
+*.map
+*.lst
+
+# Executables
+*.exe
+
+# Autosave
+*.autosave
+
+# Visual Studio / Visual Code
+**/.vscode/**
+**/.vs/**
+*.sln
+**/Debug/**
