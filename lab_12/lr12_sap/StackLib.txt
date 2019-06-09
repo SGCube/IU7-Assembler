@@ -1,0 +1,33 @@
+PUSHR MACRO LIST
+    IRP A,<LIST>
+		IFIDN <A>,<F>
+			PUSHF
+		ELSE
+			PUSH A
+		ENDIF
+	ENDM
+ENDM
+
+
+POPR MACRO LIST
+	B = 1
+	FOR param, <LIST>
+		B = B + 1
+	ENDM
+
+    B = B - 1
+	WHILE B GT 0
+		K = 1
+		FOR param, <LIST>
+			IFIDN @CatStr(%B), @CatStr(%K)
+				IFIDN <param>,<F>
+					POPF
+				ELSE
+					POP param
+				ENDIF
+			ENDIF
+			K = K + 1
+		ENDM
+		B = B - 1
+	ENDM
+ENDM
