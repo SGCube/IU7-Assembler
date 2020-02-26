@@ -1,4 +1,4 @@
 # Машинно-зависимые языки программирования
 
-***[Wiki-страница](https://gitlab.com/SGCube/iu7-assembler/wikis/home)***
+***[Wiki-страница](https://github.com/SGCube/IU7-Assembler/wiki)***
 
